@@ -62,7 +62,7 @@ public partial class Game : Form
         UpdateGuessButtonEnabled();
         txtGuess.Focus();
 
-        _uiTimer.Start();
+        _uiTimer.Stop();
         UpdateStats();
     }
 
@@ -85,6 +85,11 @@ public partial class Game : Form
     private void btnGuess_Click(object sender, EventArgs e)
     {
         var result = _controller.MakeGuess(txtGuess.Text ?? string.Empty);
+
+        if (_controller.State.GameStartedAt is not null && !_uiTimer.Enabled)
+        {
+            _uiTimer.Start();
+        }
 
         lblFeedback.Text = result.Message;
         lblFeedback.ForeColor = result.Outcome == Model.GuessOutcome.Correct ? Color.Green : Color.Red;

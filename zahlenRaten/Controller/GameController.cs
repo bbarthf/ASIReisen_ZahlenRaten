@@ -34,7 +34,7 @@ public sealed class GameController
         _state.TargetNumber = _random.Next(_settings.Min, _settings.Max + 1);
         _state.GameOver = false;
         _state.Attempts = 0;
-        _state.GameStartedAt = DateTimeOffset.Now;
+        _state.GameStartedAt = null;
         _state.GameEndedAt = null;
     }
 
@@ -59,6 +59,8 @@ public sealed class GameController
         {
             return Result(GuessOutcome.TooLow, $"Please enter a number between {_settings.Min} and {_settings.Max}.", guess, false);
         }
+
+        _state.GameStartedAt ??= DateTimeOffset.Now;
 
         _state.Attempts++;
 
