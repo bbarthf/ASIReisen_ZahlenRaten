@@ -5,7 +5,7 @@ namespace zahlenRaten.Controller;
 public sealed class GameController
 {
     private readonly Random _random;
-    private readonly GameSettings _settings;
+    private GameSettings _settings;
     private readonly GameState _state;
 
     public GameController(GameSettings settings, Random? random = null)
@@ -19,10 +19,23 @@ public sealed class GameController
     public GameSettings Settings => _settings;
     public GameState State => _state;
 
+    public void SetPlayerName(string? playerName)
+    {
+        _state.PlayerName = (playerName ?? string.Empty).Trim();
+    }
+
+    public void SetDifficulty(DifficultyLevel difficulty)
+    {
+        _settings = new GameSettings { Difficulty = difficulty };
+    }
+
     public void StartNewGame()
     {
         _state.TargetNumber = _random.Next(_settings.Min, _settings.Max + 1);
         _state.GameOver = false;
+        _state.Attempts = 0;
+        _state.GameStartedAt = DateTimeOffset.Now;
+        _state.GameEndedAt = null;
     }
 
     public GuessResult MakeGuess(string input)
@@ -47,6 +60,8 @@ public sealed class GameController
             return Result(GuessOutcome.TooLow, $"Please enter a number between {_settings.Min} and {_settings.Max}.", guess, false);
         }
 
+        _state.Attempts++;
+
         var comparison = guess.CompareTo(_state.TargetNumber);
         GuessOutcome outcome;
         switch (comparison)
@@ -65,6 +80,7 @@ public sealed class GameController
         if (outcome == GuessOutcome.Correct)
         {
             _state.GameOver = true;
+            _state.GameEndedAt = DateTimeOffset.Now;
             return Result(outcome, "Correct!", guess, true);
         }
 
