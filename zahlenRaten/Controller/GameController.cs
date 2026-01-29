@@ -1,4 +1,5 @@
 using zahlenRaten.Model;
+using zahlenRaten.Services;
 
 namespace zahlenRaten.Controller;
 
@@ -7,12 +8,14 @@ public sealed class GameController
     private readonly Random _random;
     private GameSettings _settings;
     private readonly GameState _state;
+    private readonly IStatsWriter? _statsWriter;
 
-    public GameController(GameSettings settings, Random? random = null)
+    public GameController(GameSettings settings, IStatsWriter? statsWriter = null, Random? random = null)
     {
         _settings = settings;
         _random = random ?? Random.Shared;
         _state = new GameState();
+        _statsWriter = statsWriter;
         StartNewGame();
     }
 
@@ -62,8 +65,6 @@ public sealed class GameController
 
         _state.GameStartedAt ??= DateTimeOffset.Now;
 
-        _state.Attempts++;
-
         var comparison = guess.CompareTo(_state.TargetNumber);
         GuessOutcome outcome;
         switch (comparison)
@@ -79,6 +80,9 @@ public sealed class GameController
                 break;
         }
 
+        _state.Attempts++;
+        _ = WriteGuessStatAsync(guess, _state.Attempts, outcome, _state.Elapsed?.TotalSeconds);
+
         if (outcome == GuessOutcome.Correct)
         {
             _state.GameOver = true;
@@ -88,5 +92,33 @@ public sealed class GameController
 
         var message = outcome == GuessOutcome.TooLow ? "Too low." : "Too high.";
         return Result(outcome, message, guess, false);
+    }
+
+    private async Task WriteGuessStatAsync(int guess, int attempt, GuessOutcome outcome, double? elapsedSeconds)
+    {
+        if (_statsWriter is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var evt = new GuessStatEvent(
+                TimestampUtc: DateTimeOffset.UtcNow,
+                PlayerName: _state.PlayerName,
+                Difficulty: _settings.Difficulty,
+                Min: _settings.Min,
+                Max: _settings.Max,
+                Guess: guess,
+                Outcome: outcome,
+                Attempt: attempt,
+                ElapsedSeconds: elapsedSeconds);
+
+            await _statsWriter.WriteGuessAsync(evt);
+        }
+        catch
+        {
+            Console.WriteLine("Warning: It was not possible to write to the file!");
+        }
     }
 }

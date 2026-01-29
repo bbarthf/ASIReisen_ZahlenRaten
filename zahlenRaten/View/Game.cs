@@ -3,6 +3,7 @@ namespace zahlenRaten.View;
 public partial class Game : Form
 {
     private readonly Controller.GameController _controller;
+    private readonly Services.IStatsWriter _statsWriter;
 
     private readonly System.Windows.Forms.Timer _uiTimer;
 
@@ -10,10 +11,11 @@ public partial class Game : Form
     {
         InitializeComponent();
 
-        _controller = new Controller.GameController(new Model.GameSettings
-        {
-            Difficulty = Model.DifficultyLevel.Easy
-        });
+        _statsWriter = new Services.JsonlStatsWriter(Services.StatsPaths.GetDefaultJsonlPath());
+
+        _controller = new Controller.GameController(
+            new Model.GameSettings { Difficulty = Model.DifficultyLevel.Easy },
+            _statsWriter);
 
         _uiTimer = new System.Windows.Forms.Timer { Interval = 200 };
         _uiTimer.Tick += (_, _) => UpdateStats();
