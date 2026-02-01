@@ -43,7 +43,7 @@ public sealed class GameController
 
     public GuessResult MakeGuess(string input)
     {
-        GuessResult Result(GuessOutcome outcome, string message, int guess, bool isGameOver) =>
+        GuessResult Result(zahlenRaten.Model.GuessOutcome outcome, string message, int guess, bool isGameOver) =>
             new(outcome, message, guess, _state.TargetNumber, isGameOver);
 
         const string InvalidNumberMessage = "Please enter a valid number.";
@@ -66,7 +66,7 @@ public sealed class GameController
         _state.GameStartedAt ??= DateTimeOffset.Now;
 
         var comparison = guess.CompareTo(_state.TargetNumber);
-        GuessOutcome outcome;
+        zahlenRaten.Model.GuessOutcome outcome;
         switch (comparison)
         {
             case < 0:
@@ -94,7 +94,7 @@ public sealed class GameController
         return Result(outcome, message, guess, false);
     }
 
-    private async Task WriteGuessStatAsync(int guess, int attempt, GuessOutcome outcome, double? elapsedSeconds)
+    private async Task WriteGuessStatAsync(int guess, int attempt, zahlenRaten.Model.GuessOutcome outcome, double? elapsedSeconds)
     {
         if (_statsWriter is null)
         {

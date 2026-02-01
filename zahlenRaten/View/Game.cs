@@ -11,7 +11,7 @@ public partial class Game : Form
     {
         InitializeComponent();
 
-        _statsWriter = new Services.JsonlStatsWriter(Services.StatsPaths.GetDefaultJsonlPath());
+        _statsWriter = new Services.HttpStatsWriter(new Uri("http://localhost:5088"));
 
         _controller = new Controller.GameController(
             new Model.GameSettings { Difficulty = Model.DifficultyLevel.Easy },

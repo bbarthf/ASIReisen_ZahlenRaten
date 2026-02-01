@@ -1,0 +1,6 @@
+@zahlenRaten.StatsApi_HostAddress = http://localhost:5076
+
+GET {{zahlenRaten.StatsApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
