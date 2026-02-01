@@ -3,5 +3,6 @@
     <File Path="CaseStudy.md" />
     <File Path="docs/Case Study NET Developer 012026.pdf" />
   </Folder>
+  <Project Path="zahlenRaten.StatsApi/zahlenRaten.StatsApi.csproj" />
   <Project Path="zahlenRaten/zahlenRaten.csproj" />
 </Solution>
